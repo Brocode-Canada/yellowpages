@@ -1,37 +1,48 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Job Application Tracker</title>
-  <link rel="stylesheet" href="https://cdn.datatables.net/1.13.4/css/jquery.dataTables.min.css"/>
+  <meta charset="UTF-8">
+  <title>Brocode Canada Business Directory</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <link rel="icon" type="image/png" href="brocode_logo.png">
+
+  <!-- Google Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
+
+  <!-- DataTables CSS -->
+  <link rel="stylesheet" href="https://cdn.datatables.net/1.13.4/css/jquery.dataTables.min.css">
+  <link rel="stylesheet" href="https://cdn.datatables.net/responsive/2.4.1/css/responsive.dataTables.min.css">
+
   <style>
     :root {
       --primary-red: #e53935;
-      --black: #000000;
-      --dark-gray: #1c1c1c;
-      --white: #ffffff;
+      --dark-red: #b71c1c;
+      --black: #121212;
+      --gray: #f5f5f5;
+      --white: #fff;
     }
 
     body {
       font-family: 'Inter', sans-serif;
       margin: 0;
       padding: 20px;
-      background: var(--black);
-      color: var(--white);
+      background: var(--gray);
+      color: var(--black);
     }
 
     h1 {
       text-align: center;
       font-size: 2.3rem;
       margin-bottom: 30px;
-      color: var(--primary-red);
+      color: var(--dark-red);
     }
 
     .filter-container {
       display: flex;
       justify-content: center;
       margin-bottom: 20px;
+      position: relative;
     }
 
     .filter-button {
@@ -41,24 +52,26 @@
       border-radius: 6px;
       color: var(--white);
       cursor: pointer;
-      box-shadow: 0 2px 6px rgba(255, 255, 255, 0.15);
+      border: none;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
       transition: background 0.3s ease;
     }
 
     .filter-button:hover {
-      background: #c62828;
+      background: var(--dark-red);
     }
 
     .filter-options {
       display: none;
       margin-top: 10px;
       padding: 15px;
-      background: var(--dark-gray);
+      background: var(--white);
       border-radius: 6px;
-      box-shadow: 0 2px 6px rgba(255, 255, 255, 0.1);
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
       width: 250px;
       position: absolute;
       top: 70px;
+      z-index: 1000;
     }
 
     .filter-options select {
@@ -69,34 +82,41 @@
       border-radius: 6px;
       border: 1px solid #ccc;
       background: var(--white);
-      color: var(--black);
+    }
+
+    .dataTables_wrapper .dataTables_filter,
+    .dataTables_wrapper .dataTables_length {
+      margin-bottom: 15px;
+      text-align: right;
     }
 
     table {
       width: 100%;
+      table-layout: auto;
       border-radius: 10px;
-      background: var(--dark-gray);
+      background: var(--white);
       overflow: hidden;
-      box-shadow: 0 3px 12px rgba(255, 255, 255, 0.08);
-      color: var(--white);
+      box-shadow: 0 3px 12px rgba(0, 0, 0, 0.08);
     }
 
     table.dataTable thead th {
       background-color: var(--primary-red);
       color: var(--white);
+      white-space: nowrap;
     }
 
     table.dataTable tbody tr:nth-child(even) {
-      background-color: #2a2a2a;
+      background-color: #ffebee;
     }
 
     table.dataTable tbody tr:hover {
-      background-color: #3a3a3a;
+      background-color: #ffcdd2;
     }
 
     .submit-btn {
-      margin: 40px auto;
-      text-align: center;
+      display: flex;
+      justify-content: center;
+      margin-top: 35px;
     }
 
     .submit-btn a {
@@ -108,112 +128,165 @@
       font-size: 1.1rem;
       border-radius: 10px;
       transition: background 0.3s ease, transform 0.2s ease;
-      box-shadow: 0 2px 6px rgba(255, 255, 255, 0.15);
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
     }
 
     .submit-btn a:hover {
-      background: #c62828;
+      background: var(--dark-red);
       transform: translateY(-2px);
     }
 
     .disclaimer {
       margin-top: 50px;
       font-size: 0.9rem;
-      color: var(--black);
+      color: var(--white);
       text-align: center;
       padding: 15px;
       background-color: var(--primary-red);
       border-radius: 6px;
     }
+
+    @media (max-width: 768px) {
+      .filter-container {
+        flex-direction: column;
+        align-items: center;
+      }
+
+      table.dataTable {
+        width: 100% !important;
+      }
+
+      table.dataTable th,
+      table.dataTable td {
+        white-space: nowrap;
+      }
+
+      .submit-btn {
+        margin-top: 30px;
+        text-align: center;
+      }
+    }
   </style>
 </head>
+
 <body>
 
-  <h1>Job Application Tracker</h1>
+  <h1>📒 Brocode Canada Business Directory</h1>
 
+  <!-- Filter Button -->
   <div class="filter-container">
-    <button class="filter-button" onclick="toggleFilter()">Filter Options</button>
-    <div class="filter-options" id="filterOptions">
-      <select id="statusFilter">
-        <option value="">All Statuses</option>
-        <option value="Pending">Pending</option>
-        <option value="Interview">Interview</option>
-        <option value="Rejected">Rejected</option>
+    <button class="filter-button" id="filter-button">Filter Options</button>
+    <div class="filter-options" id="filter-options">
+      <select id="filter-city">
+        <option value="">All Cities</option>
       </select>
-      <select id="sourceFilter">
-        <option value="">All Sources</option>
-        <option value="LinkedIn">LinkedIn</option>
-        <option value="Indeed">Indeed</option>
-        <option value="Company Website">Company Website</option>
+
+      <select id="filter-category">
+        <option value="">All Categories</option>
       </select>
     </div>
   </div>
 
-  <table id="jobTable" class="display">
+  <table id="directory" class="display responsive nowrap">
     <thead>
       <tr>
+        <th>Name</th>
         <th>Company</th>
-        <th>Position</th>
-        <th>Status</th>
-        <th>Source</th>
-        <th>Applied Date</th>
+        <th>Phone</th>
+        <th>Website</th>
+        <th>City</th>
+        <th>Category</th>
       </tr>
     </thead>
     <tbody>
-      <tr>
-        <td>Google</td>
-        <td>Software Engineer</td>
-        <td>Pending</td>
-        <td>LinkedIn</td>
-        <td>2024-04-10</td>
-      </tr>
-      <tr>
-        <td>Amazon</td>
-        <td>Cloud Engineer</td>
-        <td>Interview</td>
-        <td>Company Website</td>
-        <td>2024-04-12</td>
-      </tr>
-      <tr>
-        <td>Meta</td>
-        <td>Data Analyst</td>
-        <td>Rejected</td>
-        <td>Indeed</td>
-        <td>2024-04-14</td>
-      </tr>
+      <!-- Data loads here -->
     </tbody>
   </table>
 
   <div class="submit-btn">
-    <a href="#">Add New Application</a>
+    <a href="https://your-form-link.com" target="_blank">📬 Submit Your Business</a>
   </div>
 
+  <!-- Disclaimer -->
   <div class="disclaimer">
-    This tracker is for personal use only. Data is stored locally in your browser.
+    <p><strong>Disclaimer:</strong> Brocode Canada and its administrators or managers are not responsible for the actions, conduct, or representations of the businesses or individuals listed in this directory. All information is provided as-is, and users should exercise their own discretion and caution when interacting with businesses or individuals featured here.</p>
   </div>
 
-  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+  <!-- jQuery -->
+  <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
+
+  <!-- PapaParse -->
+  <script src="https://cdn.jsdelivr.net/npm/papaparse@5.3.2/papaparse.min.js"></script>
+
+  <!-- DataTables JS -->
   <script src="https://cdn.datatables.net/1.13.4/js/jquery.dataTables.min.js"></script>
+  <script src="https://cdn.datatables.net/responsive/2.4.1/js/dataTables.responsive.min.js"></script>
+
   <script>
     $(document).ready(function () {
-      const table = $('#jobTable').DataTable();
+      const csvUrl = 'https://raw.githubusercontent.com/Brocode-Canada/yellowpages/main/directory.csv';
+      const citySet = new Set();
+      const categorySet = new Set();
 
-      $('#statusFilter').on('change', function () {
-        const val = $(this).val();
-        table.column(2).search(val).draw();
+      const table = $('#directory').DataTable({
+        pageLength: 25,
+        responsive: true
       });
 
-      $('#sourceFilter').on('change', function () {
-        const val = $(this).val();
-        table.column(3).search(val).draw();
+      Papa.parse(csvUrl, {
+        download: true,
+        header: true,
+        complete: function (results) {
+          results.data.forEach(row => {
+            if (row.Name) {
+              citySet.add(row.City);
+              categorySet.add(row.Category);
+
+              table.row.add([
+                row.Name,
+                row.Company,
+                row.Phone,
+                row.Website ? `<a href="${row.Website}" target="_blank">Visit</a>` : '',
+                row.City,
+                row.Category
+              ]).draw(false);
+            }
+          });
+
+          [...citySet].sort().forEach(city => {
+            $('#filter-city').append(`<option value="${city}">${city}</option>`);
+          });
+
+          [...categorySet].sort().forEach(cat => {
+            $('#filter-category').append(`<option value="${cat}">${cat}</option>`);
+          });
+        }
+      });
+
+      $('#filter-city, #filter-category').on('change', function () {
+        const city = $('#filter-city').val().toLowerCase();
+        const category = $('#filter-category').val().toLowerCase();
+
+        table.rows().every(function () {
+          const data = this.data();
+          const rowCity = data[4]?.toLowerCase();
+          const rowCat = data[5]?.toLowerCase();
+
+          const cityMatch = !city || rowCity === city;
+          const catMatch = !category || rowCat === category;
+
+          if (cityMatch && catMatch) {
+            $(this.node()).show();
+          } else {
+            $(this.node()).hide();
+          }
+        });
+      });
+
+      $('#filter-button').on('click', function () {
+        $('#filter-options').toggle();
       });
     });
-
-    function toggleFilter() {
-      const options = document.getElementById('filterOptions');
-      options.style.display = options.style.display === 'block' ? 'none' : 'block';
-    }
   </script>
-
 </body>
 </html>

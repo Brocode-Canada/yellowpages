@@ -68,6 +68,50 @@
       font-size: 0.95rem;
       border-radius: 6px;
     }
+
+    /* Enhanced mobile view styles */
+    @media screen and (max-width: 767px) {
+      .dataTables_wrapper .dataTables_info,
+      .dataTables_wrapper .dataTables_paginate {
+        float: none;
+        text-align: center;
+      }
+      
+      .dataTables_wrapper .dataTables_paginate {
+        margin-top: 10px;
+      }
+      
+      /* Show more columns in mobile view */
+      td.child ul.dtr-details {
+        width: 100%;
+      }
+      
+      td.child ul.dtr-details li {
+        border-bottom: 1px solid #eee;
+        padding: 8px 0;
+        display: flex;
+      }
+      
+      td.child ul.dtr-details li:last-child {
+        border-bottom: none;
+      }
+      
+      td.child ul.dtr-details li .dtr-title {
+        min-width: 100px;
+        font-weight: 600;
+        color: #FF0000;
+      }
+      
+      td.child ul.dtr-details li .dtr-data {
+        flex-grow: 1;
+      }
+      
+      /* Make website links more visible */
+      td.child ul.dtr-details li .dtr-data a {
+        color: #FF0000;
+        text-decoration: underline;
+      }
+    }
   </style>
 </head>
 <body>
@@ -115,8 +159,45 @@
     $(document).ready(function () {
       const csvUrl = 'https://raw.githubusercontent.com/Brocode-Canada/yellowpages/main/directory.csv';
       const table = $('#directory').DataTable({
-        responsive: true,
-        pageLength: 25
+        responsive: {
+          details: {
+            display: $.fn.dataTable.Responsive.display.modal({
+              header: function (row) {
+                return 'Details for ' + row.data()[0]; // Show name in modal header
+              }
+            }),
+            renderer: function (api, rowIdx, columns) {
+              var data = $.map(columns, function (col, i) {
+                // Skip the first column (name) since it's in the header
+                if (i === 0) return '';
+                
+                // Format the data for display
+                var title = col.title;
+                var value = col.data;
+                
+                // Special formatting for website
+                if (title === 'Website' && value) {
+                  value = '<a href="' + value + '" target="_blank">Visit Website</a>';
+                }
+                
+                return '<li data-dtr-index="' + col.columnIndex + '">' +
+                  '<span class="dtr-title">' + title + '</span> ' +
+                  '<span class="dtr-data">' + (value || '-') + '</span>' +
+                  '</li>';
+              }).join('');
+              
+              return data ? $('<ul class="dtr-details"/>').append(data) : false;
+            }
+          }
+        },
+        pageLength: 25,
+        language: {
+          responsive: {
+            details: {
+              display: $.fn.dataTable.Responsive.display.childRowImmediate
+            }
+          }
+        }
       });
 
       Papa.parse(csvUrl, {
@@ -129,7 +210,7 @@
                 row.Name,
                 row.Company,
                 row.Phone,
-                row.Website ? `<a href="${row.Website}" target="_blank">Visit</a>` : '',
+                row.Website ? row.Website : '', // Store raw URL for proper rendering
                 row.City,
                 row.Category
               ]).draw(false);
@@ -139,6 +220,5 @@
       });
     });
   </script>
-
 </body>
 </html>

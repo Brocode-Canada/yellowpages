@@ -156,7 +156,7 @@
   <script src="https://cdn.jsdelivr.net/npm/papaparse@5.3.2/papaparse.min.js"></script>
 
   <script>
-    $(document).ready(function () {
+       $(document).ready(function () {
       const csvUrl = 'https://raw.githubusercontent.com/Brocode-Canada/yellowpages/main/directory.csv';
       const table = $('#directory').DataTable({
         responsive: {
@@ -177,7 +177,12 @@
                 
                 // Special formatting for website
                 if (title === 'Website' && value) {
-                  value = '<a href="' + value + '" target="_blank">Visit Website</a>';
+                  // Ensure URL has proper protocol
+                  let url = value;
+                  if (!url.startsWith('http://') && !url.startsWith('https://')) {
+                    url = 'https://' + url;
+                  }
+                  value = '<a href="' + url + '" target="_blank">Visit Website</a>';
                 }
                 
                 return '<li data-dtr-index="' + col.columnIndex + '">' +
@@ -197,7 +202,23 @@
               display: $.fn.dataTable.Responsive.display.childRowImmediate
             }
           }
-        }
+        },
+        columnDefs: [
+          {
+            targets: 3, // Website column
+            render: function(data, type, row) {
+              if (type === 'display' && data) {
+                // Ensure URL has proper protocol
+                let url = data;
+                if (!url.startsWith('http://') && !url.startsWith('https://')) {
+                  url = 'https://' + url;
+                }
+                return '<a href="' + url + '" target="_blank">Visit</a>';
+              }
+              return data;
+            }
+          }
+        ]
       });
 
       Papa.parse(csvUrl, {
@@ -210,7 +231,7 @@
                 row.Name,
                 row.Company,
                 row.Phone,
-                row.Website ? row.Website : '', // Store raw URL for proper rendering
+                row.Website ? row.Website : '', // Store raw URL
                 row.City,
                 row.Category
               ]).draw(false);

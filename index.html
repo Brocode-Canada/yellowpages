@@ -16,7 +16,7 @@
       font-family: 'Inter', sans-serif;
       margin: 0;
       padding: 20px;
-      background: linear-gradient(to right, #e3f2fd, #fce4ec);
+      background: linear-gradient(to right, #f3f4f6, #e0f7fa);
       color: #333;
     }
 
@@ -24,7 +24,7 @@
       text-align: center;
       font-size: 2.5rem;
       margin-bottom: 30px;
-      color: #212121;
+      color: #0d47a1;
     }
 
     .filters {
@@ -39,14 +39,15 @@
       padding: 10px 16px;
       font-size: 1rem;
       border-radius: 8px;
-      border: 1px solid #ccc;
+      border: 1px solid #90caf9;
       background: white;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
       transition: box-shadow 0.3s;
     }
 
     .filters select:focus {
       outline: none;
-      box-shadow: 0 0 0 2px #1976d2;
+      box-shadow: 0 0 0 2px #42a5f5;
     }
 
     table {
@@ -54,12 +55,29 @@
       background: white;
       border-radius: 12px;
       overflow: hidden;
-      box-shadow: 0 0 20px rgba(0, 0, 0, 0.05);
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
     }
 
     .dataTables_wrapper .dataTables_filter {
       text-align: right;
       margin-bottom: 10px;
+    }
+
+    .dataTables_wrapper .dataTables_length {
+      margin-bottom: 10px;
+    }
+
+    table.dataTable thead th {
+      background-color: #1976d2;
+      color: white;
+    }
+
+    table.dataTable tbody tr:nth-child(even) {
+      background-color: #f1f8ff;
+    }
+
+    table.dataTable tbody tr:hover {
+      background-color: #e3f2fd;
     }
 
     .submit-btn {
@@ -80,11 +98,10 @@
     }
 
     .submit-btn a:hover {
-      background: linear-gradient(to right, #1565c0, #2196f3);
+      background: linear-gradient(to right, #1565c0, #1e88e5);
       transform: translateY(-2px);
     }
 
-    /* Responsive */
     @media (max-width: 600px) {
       .filters {
         flex-direction: column;
@@ -145,11 +162,12 @@
   <script>
     $(document).ready(function () {
       const csvUrl = 'https://raw.githubusercontent.com/Brocode-Canada/yellowpages/main/directory.csv';
-
       const citySet = new Set();
       const categorySet = new Set();
 
-      const table = $('#directory').DataTable();
+      const table = $('#directory').DataTable({
+        pageLength: 25
+      });
 
       Papa.parse(csvUrl, {
         download: true,

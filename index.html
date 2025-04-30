@@ -5,20 +5,57 @@
   <title>Brocode Canada Business Directory</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
 
+  <!-- Google Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
+
   <!-- DataTables CSS -->
   <link rel="stylesheet" href="https://cdn.datatables.net/1.13.4/css/jquery.dataTables.min.css">
 
   <style>
     body {
-      font-family: Arial, sans-serif;
+      font-family: 'Inter', sans-serif;
       padding: 20px;
+      background-color: #f4f6f8;
     }
     h1 {
       text-align: center;
+      color: #333;
+    }
+    .filters {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 15px;
+      margin: 20px 0;
+    }
+    .filters select {
+      padding: 8px;
+      border-radius: 6px;
+      border: 1px solid #ccc;
+    }
+    .submit-btn {
+      display: block;
+      text-align: center;
+      margin-top: 25px;
+    }
+    .submit-btn a {
+      background-color: #007bff;
+      color: white;
+      padding: 12px 24px;
+      text-decoration: none;
+      border-radius: 8px;
+      font-weight: bold;
+    }
+    .submit-btn a:hover {
+      background-color: #0056b3;
     }
     table {
       width: 100%;
-      margin-top: 20px;
+      margin-top: 10px;
+    }
+    .dataTables_wrapper .dataTables_filter {
+      float: right;
+      text-align: right;
     }
   </style>
 </head>
@@ -26,6 +63,16 @@
 <body>
 
   <h1>Brocode Canada Business Directory</h1>
+
+  <div class="filters">
+    <select id="filter-city">
+      <option value="">All Cities</option>
+    </select>
+
+    <select id="filter-category">
+      <option value="">All Categories</option>
+    </select>
+  </div>
 
   <table id="directory" class="display">
     <thead>
@@ -43,10 +90,14 @@
     </tbody>
   </table>
 
+  <div class="submit-btn">
+    <a href="https://your-form-link.com" target="_blank">Submit Your Business</a>
+  </div>
+
   <!-- jQuery -->
   <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
 
-  <!-- PapaParse for CSV Parsing -->
+  <!-- PapaParse -->
   <script src="https://cdn.jsdelivr.net/npm/papaparse@5.3.2/papaparse.min.js"></script>
 
   <!-- DataTables JS -->
@@ -54,17 +105,22 @@
 
   <script>
     $(document).ready(function() {
-      // URL to your CSV (hosted on GitHub)
-      const csvUrl = 'https://raw.githubusercontent.com/Brocode-Canada/yellowpages/main/directory.csv'; 
+      const csvUrl = 'https://raw.githubusercontent.com/Brocode-Canada/yellowpages/main/directory.csv';
+
+      const citySet = new Set();
+      const categorySet = new Set();
+
+      const table = $('#directory').DataTable();
 
       Papa.parse(csvUrl, {
         download: true,
         header: true,
         complete: function(results) {
-          const table = $('#directory').DataTable();
-
           results.data.forEach(row => {
-            if(row.Name) { // skip empty rows
+            if (row.Name) {
+              citySet.add(row.City);
+              categorySet.add(row.Category);
+
               table.row.add([
                 row.Name,
                 row.Company,
@@ -75,7 +131,38 @@
               ]).draw(false);
             }
           });
+
+          // Populate City Filter
+          [...citySet].sort().forEach(city => {
+            $('#filter-city').append(`<option value="${city}">${city}</option>`);
+          });
+
+          // Populate Category Filter
+          [...categorySet].sort().forEach(cat => {
+            $('#filter-category').append(`<option value="${cat}">${cat}</option>`);
+          });
         }
+      });
+
+      // Filter listeners
+      $('#filter-city, #filter-category').on('change', function() {
+        const city = $('#filter-city').val().toLowerCase();
+        const category = $('#filter-category').val().toLowerCase();
+
+        table.rows().every(function() {
+          const data = this.data();
+          const rowCity = data[4].toLowerCase();
+          const rowCat = data[5].toLowerCase();
+
+          const cityMatch = !city || rowCity === city;
+          const catMatch = !category || rowCat === category;
+
+          if (cityMatch && catMatch) {
+            $(this.node()).show();
+          } else {
+            $(this.node()).hide();
+          }
+        });
       });
     });
   </script>

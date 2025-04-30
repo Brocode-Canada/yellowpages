@@ -37,26 +37,47 @@
       color: var(--black);
     }
 
-    .filters {
+    .filter-container {
       display: flex;
-      flex-wrap: wrap;
       justify-content: center;
-      gap: 15px;
       margin-bottom: 20px;
     }
 
-    .filters select {
+    .filter-button {
+      background: var(--primary-yellow);
+      padding: 10px 20px;
+      font-size: 1rem;
+      border-radius: 6px;
+      color: var(--black);
+      cursor: pointer;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+      transition: background 0.3s ease;
+    }
+
+    .filter-button:hover {
+      background: #fdd835;
+    }
+
+    .filter-options {
+      display: none;
+      margin-top: 10px;
+      padding: 15px;
+      background: var(--white);
+      border-radius: 6px;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+      width: 250px;
+      position: absolute;
+      top: 70px;
+    }
+
+    .filter-options select {
+      width: 100%;
       padding: 10px;
+      margin: 10px 0;
       font-size: 1rem;
       border-radius: 6px;
       border: 1px solid #ccc;
       background: var(--white);
-      box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
-    }
-
-    .filters select:focus {
-      outline: none;
-      border-color: var(--primary-yellow);
     }
 
     .dataTables_wrapper .dataTables_filter,
@@ -109,15 +130,20 @@
       transform: translateY(-2px);
     }
 
-    @media (max-width: 768px) {
-      .filters {
-        flex-direction: column;
-        align-items: stretch;
-      }
+    .disclaimer {
+      margin-top: 50px;
+      font-size: 0.9rem;
+      color: var(--black);
+      text-align: center;
+      padding: 15px;
+      background-color: #ffeb3b;
+      border-radius: 6px;
+    }
 
-      .dataTables_wrapper .dataTables_filter,
-      .dataTables_wrapper .dataTables_length {
-        text-align: left;
+    @media (max-width: 768px) {
+      .filter-container {
+        flex-direction: column;
+        align-items: center;
       }
 
       .submit-btn {
@@ -132,14 +158,18 @@
 
   <h1>📒 Brocode Canada Business Directory</h1>
 
-  <div class="filters">
-    <select id="filter-city">
-      <option value="">All Cities</option>
-    </select>
+  <!-- Filter Button -->
+  <div class="filter-container">
+    <button class="filter-button" id="filter-button">Filter Options</button>
+    <div class="filter-options" id="filter-options">
+      <select id="filter-city">
+        <option value="">All Cities</option>
+      </select>
 
-    <select id="filter-category">
-      <option value="">All Categories</option>
-    </select>
+      <select id="filter-category">
+        <option value="">All Categories</option>
+      </select>
+    </div>
   </div>
 
   <table id="directory" class="display responsive nowrap">
@@ -160,6 +190,11 @@
 
   <div class="submit-btn">
     <a href="https://your-form-link.com" target="_blank">📬 Submit Your Business</a>
+  </div>
+
+  <!-- Disclaimer -->
+  <div class="disclaimer">
+    <p><strong>Disclaimer:</strong> Brocode Canada and its administrators or managers are not responsible for the actions, conduct, or representations of the businesses or individuals listed in this directory. All information is provided as-is, and users should exercise their own discretion and caution when interacting with businesses or individuals featured here.</p>
   </div>
 
   <!-- jQuery -->
@@ -231,6 +266,11 @@
             $(this.node()).hide();
           }
         });
+      });
+
+      // Toggle filter options visibility
+      $('#filter-button').on('click', function () {
+        $('#filter-options').toggle();
       });
     });
   </script>

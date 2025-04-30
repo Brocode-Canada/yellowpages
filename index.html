@@ -14,48 +14,87 @@
   <style>
     body {
       font-family: 'Inter', sans-serif;
+      margin: 0;
       padding: 20px;
-      background-color: #f4f6f8;
-    }
-    h1 {
-      text-align: center;
+      background: linear-gradient(to right, #e3f2fd, #fce4ec);
       color: #333;
     }
+
+    h1 {
+      text-align: center;
+      font-size: 2.5rem;
+      margin-bottom: 30px;
+      color: #212121;
+    }
+
     .filters {
       display: flex;
       flex-wrap: wrap;
       justify-content: center;
-      gap: 15px;
-      margin: 20px 0;
+      gap: 20px;
+      margin-bottom: 25px;
     }
+
     .filters select {
-      padding: 8px;
-      border-radius: 6px;
-      border: 1px solid #ccc;
-    }
-    .submit-btn {
-      display: block;
-      text-align: center;
-      margin-top: 25px;
-    }
-    .submit-btn a {
-      background-color: #007bff;
-      color: white;
-      padding: 12px 24px;
-      text-decoration: none;
+      padding: 10px 16px;
+      font-size: 1rem;
       border-radius: 8px;
-      font-weight: bold;
+      border: 1px solid #ccc;
+      background: white;
+      transition: box-shadow 0.3s;
     }
-    .submit-btn a:hover {
-      background-color: #0056b3;
+
+    .filters select:focus {
+      outline: none;
+      box-shadow: 0 0 0 2px #1976d2;
     }
+
     table {
       width: 100%;
-      margin-top: 10px;
+      background: white;
+      border-radius: 12px;
+      overflow: hidden;
+      box-shadow: 0 0 20px rgba(0, 0, 0, 0.05);
     }
+
     .dataTables_wrapper .dataTables_filter {
-      float: right;
       text-align: right;
+      margin-bottom: 10px;
+    }
+
+    .submit-btn {
+      display: flex;
+      justify-content: center;
+      margin-top: 35px;
+    }
+
+    .submit-btn a {
+      background: linear-gradient(to right, #1976d2, #42a5f5);
+      color: white;
+      padding: 14px 28px;
+      text-decoration: none;
+      font-weight: 600;
+      font-size: 1.1rem;
+      border-radius: 10px;
+      transition: background 0.3s ease, transform 0.2s ease;
+    }
+
+    .submit-btn a:hover {
+      background: linear-gradient(to right, #1565c0, #2196f3);
+      transform: translateY(-2px);
+    }
+
+    /* Responsive */
+    @media (max-width: 600px) {
+      .filters {
+        flex-direction: column;
+        align-items: center;
+      }
+
+      .submit-btn {
+        flex-direction: column;
+        text-align: center;
+      }
     }
   </style>
 </head>
@@ -91,7 +130,7 @@
   </table>
 
   <div class="submit-btn">
-    <a href="https://your-form-link.com" target="_blank">Submit Your Business</a>
+    <a href="https://your-form-link.com" target="_blank">📬 Submit Your Business</a>
   </div>
 
   <!-- jQuery -->
@@ -104,7 +143,7 @@
   <script src="https://cdn.datatables.net/1.13.4/js/jquery.dataTables.min.js"></script>
 
   <script>
-    $(document).ready(function() {
+    $(document).ready(function () {
       const csvUrl = 'https://raw.githubusercontent.com/Brocode-Canada/yellowpages/main/directory.csv';
 
       const citySet = new Set();
@@ -115,7 +154,7 @@
       Papa.parse(csvUrl, {
         download: true,
         header: true,
-        complete: function(results) {
+        complete: function (results) {
           results.data.forEach(row => {
             if (row.Name) {
               citySet.add(row.City);
@@ -132,24 +171,21 @@
             }
           });
 
-          // Populate City Filter
           [...citySet].sort().forEach(city => {
             $('#filter-city').append(`<option value="${city}">${city}</option>`);
           });
 
-          // Populate Category Filter
           [...categorySet].sort().forEach(cat => {
             $('#filter-category').append(`<option value="${cat}">${cat}</option>`);
           });
         }
       });
 
-      // Filter listeners
-      $('#filter-city, #filter-category').on('change', function() {
+      $('#filter-city, #filter-category').on('change', function () {
         const city = $('#filter-city').val().toLowerCase();
         const category = $('#filter-category').val().toLowerCase();
 
-        table.rows().every(function() {
+        table.rows().every(function () {
           const data = this.data();
           const rowCity = data[4].toLowerCase();
           const rowCat = data[5].toLowerCase();
@@ -166,6 +202,5 @@
       });
     });
   </script>
-
 </body>
 </html>

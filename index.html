@@ -387,6 +387,82 @@
       color: #ccc !important;
       opacity: 1;
     }
+
+    /* Mobile Company Modal Styles */
+    @media screen and (max-width: 767px) {
+      .company-cell {
+        cursor: pointer;
+        color: #d70620;
+        text-decoration: underline;
+        transition: background 0.2s;
+      }
+      .company-cell:active, .company-cell:hover {
+        background: #f8f8f8;
+      }
+      .company-modal-overlay {
+        display: none;
+        position: fixed;
+        z-index: 9999;
+        left: 0; top: 0; right: 0; bottom: 0;
+        background: rgba(0,0,0,0.5);
+        justify-content: center;
+        align-items: center;
+      }
+      .company-modal {
+        background: #fff;
+        border-radius: 12px;
+        max-width: 90vw;
+        width: 100%;
+        padding: 24px 16px 16px 16px;
+        box-shadow: 0 8px 32px rgba(0,0,0,0.18);
+        position: relative;
+      }
+      .company-modal .close-btn {
+        position: absolute;
+        top: 8px;
+        right: 12px;
+        font-size: 1.5rem;
+        color: #d70620;
+        background: none;
+        border: none;
+        cursor: pointer;
+      }
+      .company-modal h2 {
+        font-size: 1.2rem;
+        margin-bottom: 12px;
+        color: #d70620;
+      }
+      .company-modal ul {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+      }
+      .company-modal ul li {
+        margin-bottom: 8px;
+        font-size: 1rem;
+      }
+      .company-modal ul li span {
+        font-weight: 600;
+        color: #333;
+        min-width: 90px;
+        display: inline-block;
+      }
+    }
+
+    /* Dark mode for modal */
+    .dark-theme .company-modal {
+      background: #232526;
+      color: #f1f1f1;
+    }
+    .dark-theme .company-modal h2 {
+      color: #d70620;
+    }
+    .dark-theme .company-modal .close-btn {
+      color: #d70620;
+    }
+    .dark-theme .company-modal ul li span {
+      color: #f1f1f1;
+    }
   </style>
 </head>
 <body>
@@ -444,7 +520,16 @@
 
     <!-- Disclaimer -->
     <div class="disclaimer mt-4">
-      <strong>Disclaimer:</strong> Brocode Canada is not responsible for the actions or representations of listed businesses. Users should exercise their own discretion when interacting with featured businesses.
+      <strong>Disclaimer:</strong> <br>Brocode - PBC is not responsible for the actions or representations of listed businesses. Users should exercise their own discretion when interacting with featured businesses.
+    </div>
+  </div>
+
+  <!-- Company Details Modal (Mobile Only) -->
+  <div class="company-modal-overlay" id="companyModalOverlay">
+    <div class="company-modal">
+      <button class="close-btn" id="closeCompanyModal">&times;</button>
+      <h2 id="modalCompanyName"></h2>
+      <ul id="modalCompanyDetails"></ul>
     </div>
   </div>
 
@@ -614,6 +699,58 @@
       setTheme(localStorage.getItem('theme') === 'dark');
       $('#theme-toggle').on('change', function() {
         setTheme(this.checked);
+      });
+
+      // Mobile company modal logic
+      function isMobile() {
+        return window.matchMedia('(max-width: 767px)').matches;
+      }
+      function showCompanyModal(data) {
+        $('#modalCompanyName').text(data[1] || '-');
+        const details = [
+          { label: 'Category', value: data[0] },
+          { label: 'Company', value: data[1] },
+          { label: 'City', value: data[2] },
+          { label: 'Phone', value: data[3] },
+          { label: 'Name', value: data[4] },
+          { label: 'Website', value: data[5] }
+        ];
+        $('#modalCompanyDetails').html(details.map(d => `<li><span>${d.label}:</span> ${d.value || '-'}</li>`).join(''));
+        $('#companyModalOverlay').css('display', 'flex');
+      }
+      function hideCompanyModal() {
+        $('#companyModalOverlay').css('display', 'none');
+      }
+      $('#closeCompanyModal').on('click', hideCompanyModal);
+      $('#companyModalOverlay').on('click', function(e) {
+        if (e.target === this) hideCompanyModal();
+      });
+      // Add click event to company cells on mobile
+      function addCompanyCellListeners() {
+        if (isMobile()) {
+          $('#directory tbody').off('click', '.company-cell').on('click', '.company-cell', function() {
+            const rowIdx = table.row($(this).closest('tr')).index();
+            const rowData = table.row(rowIdx).data();
+            showCompanyModal(rowData);
+          });
+        } else {
+          $('#directory tbody').off('click', '.company-cell');
+        }
+      }
+      // On table draw, add .company-cell class to company column (index 1)
+      table.on('draw', function() {
+        if (isMobile()) {
+          $('#directory tbody tr').each(function() {
+            $(this).find('td').eq(1).addClass('company-cell');
+          });
+        } else {
+          $('#directory tbody tr td.company-cell').removeClass('company-cell');
+        }
+        addCompanyCellListeners();
+      });
+      // On resize, re-apply listeners and classes
+      $(window).on('resize', function() {
+        table.rows().invalidate().draw(false);
       });
     });
   </script>

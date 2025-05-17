@@ -478,6 +478,19 @@
     .dark-theme .company-modal ul li span {
       color: #f1f1f1;
     }
+
+    /* Force red theme for pagination buttons */
+    .dataTables_wrapper .dataTables_paginate .paginate_button.current,
+    .dataTables_wrapper .dataTables_paginate .paginate_button.current:focus,
+    .dataTables_wrapper .dataTables_paginate .paginate_button.current:active,
+    .dataTables_wrapper .dataTables_paginate .paginate_button:hover,
+    .dataTables_wrapper .dataTables_paginate .paginate_button:focus,
+    .dataTables_wrapper .dataTables_paginate .paginate_button:active {
+      background-color: #d70620 !important;
+      color: #fff !important;
+      border-color: #d70620 !important;
+      box-shadow: none !important;
+    }
   </style>
 </head>
 <body>
@@ -520,7 +533,7 @@
             <th>Company</th>
             <th>City</th>
             <th>Phone</th>
-            <th>BroCode Person Name</th>
+            <th>Name</th>
             <th>Website</th>
           </tr>
         </thead>
@@ -617,12 +630,12 @@
                 if (!data || data === '') {
                   return '-';
                 }
-                // Ensure URL has proper protocol
                 let url = data;
+                // Add https:// if missing
                 if (!url.startsWith('http://') && !url.startsWith('https://')) {
                   url = 'https://' + url;
                 }
-                return '<a href="' + url + '" target="_blank">Visit Us</a>';
+                return '<a href="' + url + '" target="_blank" rel="noopener">' + data + '</a>';
               }
               return data;
             }
